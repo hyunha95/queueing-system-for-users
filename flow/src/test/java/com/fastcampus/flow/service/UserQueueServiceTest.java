@@ -68,9 +68,9 @@ class UserQueueServiceTest {
     @Test
     void allowUser() {
         StepVerifier.create(userQueueService.registerWaitQueue("default", 100L)
-                .then(userQueueService.registerWaitQueue("default", 101L))
-                .then(userQueueService.registerWaitQueue("default", 102L))
-                .then(userQueueService.allowUser("default", 2L)))
+                        .then(userQueueService.registerWaitQueue("default", 101L))
+                        .then(userQueueService.registerWaitQueue("default", 102L))
+                        .then(userQueueService.allowUser("default", 2L)))
                 .expectNext(2L)
                 .verifyComplete();
 
@@ -78,5 +78,30 @@ class UserQueueServiceTest {
 
     @Test
     void isAllowed() {
+        StepVerifier.create(userQueueService.registerWaitQueue("default", 100L)
+                        .then(userQueueService.allowUser("default", 3L))
+                        .then(userQueueService.isAllowed("default", 100L)))
+                .expectNext(true)
+                .verifyComplete();
+    }
+
+    @Test
+    void getRank() {
+        StepVerifier.create(userQueueService.registerWaitQueue("default", 100L)
+                        .then(userQueueService.getRank("default", 100L)))
+                .expectNext(1L)
+                .verifyComplete();
+
+        StepVerifier.create(userQueueService.registerWaitQueue("default", 101L)
+                        .then(userQueueService.getRank("default", 101L)))
+                .expectNext(2L)
+                .verifyComplete();
+    }
+
+    @Test
+    void emptyRank() {
+        StepVerifier.create(userQueueService.getRank("default", 100L))
+                .expectNext(-1L)
+                .verifyComplete();
     }
 }
