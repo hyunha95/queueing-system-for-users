@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
 @Slf4j
@@ -64,6 +67,18 @@ public class UserQueueService {
                 .map(rank -> rank >= 0 ? rank + 1 : rank);
     }
 
+    public Mono<String> generateToken(final String queue, final Long userId) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        var input = "user-queue-%s-%d".formatted(queue, userId);
+        byte[] encodedHash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+
+        StringBuilder hexString = new StringBuilder();
+        for (byte aByte : encodedHash) {
+            hexString.append(String.format("%02x", aByte));
+        }
+        return Mono.just(hexString.toString());
+    }
+
     @Scheduled(initialDelay = 5000, fixedDelay = 10000)
     public void scheduleAllowUser() {
         if (!scheduling) {
@@ -83,8 +98,5 @@ public class UserQueueService {
                 .flatMap(queue -> allowUser(queue, maxAllowUserCount).map(allowed -> Tuples.of(queue, allowed)))
                 .doOnNext(tuple -> log.info("Tried {} and allowed {} members of {} queue", maxAllowUserCount, tuple.getT2(), tuple.getT1()))
                 .subscribe();
-        // 사용자를 허용하는 코드 작성
-
-
     }
 }
