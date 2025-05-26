@@ -1,3 +1,8 @@
+**비즈니스 로직**
+https://github.com/hyunha95/queueing-system-for-users/blob/fe0f5e49fc60040e57acb422a0cb272e8acd1c2c/flow/src/main/java/com/fastcampus/flow/service/UserQueueService.java#L22
+       
+
+   
 **테스트 방법**
 1. 로컬에서 6379번 포트로 레디스를 실행시킨다.
 2. flow프로젝트를 9010번 포트에서 실행시킨다.
